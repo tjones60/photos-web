@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>Slide Show</title>
+        <style>
+
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                text-align: center;
+                font: 0/0 a;
+                background: black;
+                line-height: 100vh;
+            }
+
+            #image {
+                padding: 0;
+                display: inline-block;
+                vertical-align: middle;
+                margin: auto;
+                max-height: 100vh;
+                max-width: 100%;
+            }
+
+            #info {
+                position: absolute;
+                width: 100%;
+                height: auto;
+                margin: 0;
+                padding: 4px 0 4px 0;
+                top: 0;
+                font-family: Verdana;
+                font-size: 12px;
+                line-height: normal;
+                background-color: white;
+                opacity: 0;
+            }
+
+            button {
+                position: absolute;
+                height: 100%;
+                width: 80px;
+                font-family: Verdana;
+                font-size: 50px;
+                border: none;
+                background-color: white;
+                opacity: 0;
+                cursor: pointer;
+            }
+
+            #info:hover, button:hover {
+                opacity: 0.8;
+            }
+
+        </style>
+        <script src="slideshow.js"></script>
+    </head>
+
+    <body>
+
+        <p id="info"></p>
+
+        <button style="top:0;left:0" onclick="previous()">&#8249</button>
+        <button style="top:0;right:0" onclick="next()">&#8250</button>
+
+        <img id="image">
+        <img id="preload1" style="display:none">
+        <img id="preload2" style="display:none">
+
+        <script>
+            initSlideshow();
+        </script>
+
+    </body>
+
+</html>
