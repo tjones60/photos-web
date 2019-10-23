@@ -8,10 +8,9 @@ if (isset($_GET['img'])) {
 
 header('Content-Type: image/jpeg');
 
+//display cached thumb if it exists
 if ( is_file('thumbs'.$img) ) {
-
     readfile('thumbs'.$img);
-
 } else {
 
     //load image
@@ -42,12 +41,15 @@ if ( is_file('thumbs'.$img) ) {
     imagecopyresampled($thumb, $source_image, $dst_x, $dst_y, 0, 0, $desired_width, $desired_height, $width, $height);
     //rotate image based on exif data
     $thumb = imagerotate($thumb, array_values([0, 0, 0, 180, 0, 0, -90, 0, 90])[@exif_read_data($img)['Orientation'] ?: 0], 0);
+
     //display image
     imagejpeg($thumb);
+
     //save image
     if (!is_dir(dirname('thumbs'.$img)))
         mkdir(dirname('thumbs'.$img), 0777, true);
     imagejpeg($thumb, 'thumbs'.$img);
+
     //free memory
     imagedestroy($thumb);
 }

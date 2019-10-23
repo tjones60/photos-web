@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>Photos</title>
+        <link rel="stylesheet" href="/style.css">
+        <style>
+
+            #selector {
+                position: fixed;
+                top: 0;
+                right: 0;
+                z-index: 999;
+                padding: 10px;
+            }
+
+            #selector select {
+                font-size: 14px;
+                font-family: Verdana;
+            }
+
+            #bdiv p {
+                margin: 0 0 0 0;
+                padding: 32px 0 32px 0;
+            }
+
+            #loading {
+                position: fixed;
+                height: 50px;
+                width: 100px;
+                top: 50%;
+                left: 50%;
+                margin-top: -25px;
+                margin-left: -50px;
+                text-align: center;
+                vertical-align: middle;
+                line-height: 50px;
+                font-size: 16px;
+                font-family: Verdana;
+                border-radius: 10px;
+                border-width: 1px;
+                border-style: solid;
+                border-color: #808080;
+                background: rgba(255,255,255,0.9);
+            }
+
+            .selected {
+                outline: 4px solid #aaa;
+                outline-radius: 4px;
+                opacity: 0.5;
+            }
+
+        </style>
+        <script src="browser.js"></script>
+    </head>
+
+    <body onscroll="scrolled()">
+
+        <img id="mbtn" src="/i/menu.png" onclick="togglemenu()">
+
+        <div id="menu" style="display:none">
+            <a href="/"><div><img src="/i/home.png"></div><p>THJ Media Server</p></a><br>
+            <a href="/jones/music"><div><img src="/i/musicnote.png"></div><p>Jones Music</p></a><br>
+            <a href="/jones/photos"><div><img src="/i/lakepic.png"></div><p><b>Jones Photos</b></p></a><br>
+        </div>
+
+        <script>
+            function togglemenu() {
+                if (document.getElementById('menu').style.display == 'none') {
+                    document.getElementById('menu').style.display = 'block';
+                } else {
+                    document.getElementById('menu').style.display = 'none';
+                }
+            }
+        </script>
+
+        <div id="hdiv"><b>Photos</b></div>
+
+        <span id="selector" style="float:right">
+            <button id="cancel" style="display:none" onclick="select(false)">Cancel</button>
+            <input type="text" id="name" style="width:100px;display:none" placeholder="Album Name">
+            <button id="select" onclick="select(true)">Select</button>
+            <button id="add" style="display:none" onclick="add()">Add</button>
+            <button id="download" style="display:none" onclick="download()">Download</button>
+            <button id="all" style="display:none" onclick="selectAll()">All</button>
+            <button id="remove" style="display:none" onclick="remove()">Remove</button>
+            <button id="close" style="display:none" onclick="closeAlbum()">Close</button>
+            <select id="y" style="width:75px" onchange="sely()"><option>Y</option></select>
+            <select id="m" style="width:50px" onchange="selm()"><option>M</option></select>
+            <select id="d" style="width:50px" onchange="seld()"><option>D</option></select>
+            <select id="album" style="width:100px" onchange="selAlbum()"><option>Album</option></select>
+        </span>
+
+        <div id="loading">Loading...</div>
+        <div id="bdiv" style="visibility:hidden"></div>
+
+        <script>
+            initBrowser();
+        </script>
+
+    </body>
+
+</html>

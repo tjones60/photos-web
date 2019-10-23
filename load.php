@@ -1,6 +1,12 @@
 <?php
 
-$file = 'library.json';
+if (isset($_GET['file'])) {
+    $file = $_GET['file'];
+} elseif (isset($_POST['file'])) {
+    $file = $_POST['file'];
+} else {
+    die('No File Specified!');
+}
 
 if (is_file($file)) {
     echo file_get_contents($file);

@@ -1,12 +1,18 @@
 //slideshow.js
 
-var library = [];
+var library = {};
 var total   = 0;
 var id      = -1;
-if (window.opener)
+if (window.opener) {
     id      = window.opener.selected;
+    album   = window.opener.album;
+}
 
 function initSlideshow() {
+
+    var file = 'library.json';
+    if (album !== null)
+        file = 'albums/'+album;
 
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -17,9 +23,9 @@ function initSlideshow() {
             loadImage(id);
         }
     };
-    xhttp.open("POST", "loadlib.php", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send();
+    xhttp.open('POST', 'load.php', true);
+    xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhttp.send('file='+file);
 }
 
 
