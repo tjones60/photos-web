@@ -1,6 +1,6 @@
 //browser.js
 
-var library   = {};
+var library   = [];
 var dates     = {};
 var selection = {};
 var albums    = {};
@@ -15,22 +15,45 @@ var end       = 0;
 var selected  = -1;
 var selecting = false;
 var album     = null;
+var share     = false;
+var touch     = false;
 
 function initBrowser() {
 
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
+            if (this.responseText == '/var/www/thjmedia/jones/photos') {
+                getAlbums();
+                document.getElementById('album').style.display = 'inline-block';
+                document.getElementById('y').style.display = 'inline-block';
+                document.getElementById('m').style.display = 'inline-block';
+                document.getElementById('d').style.display = 'inline-block';
+            } else {
+                share = true;
+            }
+        }
+    };
+    xhttp.open('POST', 'pwd.php', true);
+    xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhttp.send();
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
             library = JSON.parse(this.responseText);
             getAvailableDates();
-            updateView(total - 101, total - 1);
+            if (window.opener) {
+                scroll = window.opener.scroll;
+                updateView(window.opener.start, window.opener.end)
+            } else {
+                updateView(total - 101, total - 1);
+            }
         }
     };
     xhttp.open('POST', 'load.php', true);
     xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhttp.send('file=library.json');
-
-    getAlbums();
 }
 
 
@@ -83,30 +106,26 @@ function getAlbums() {
 
 function updateView(newStart, newEnd) {
 
-    start = newStart > 0 ? newStart : 0;
-    end = newEnd > total - 1 ? total - 1: newEnd;
+    if (share == false) {
 
-    var date;
+        start = newStart > 0 ? newStart : 0;
+        end = newEnd > total - 1 ? total - 1: newEnd;
 
-    date = library[start].date.substr(0,10);
-    while (start > 0 && date == library[start - 1].date.substr(0,10))
-        start--;
+        var date;
 
-    date = library[end].date.substr(0,10);
-    while (end < total - 1 && date == library[end + 1].date.substr(0,10))
-        end++;
+        date = library[start].date.substr(0,10);
+        while (start > 0 && date == library[start - 1].date.substr(0,10))
+            start--;
 
-    /*if (end - start > max) {
-        if (height > 0) {
-            date = library[end + 1].date.substr(0,10);
-            while (start <= end && date == library[end].date.substr(0,10))
-                end--;
-        } else {
-            date = library[start - 1].date.substr(0,10);
-            while (start <= end && date == library[start].date.substr(0,10))
-                start++;
-        }
-    }*/
+        date = library[end].date.substr(0,10);
+        while (end < total - 1 && date == library[end + 1].date.substr(0,10))
+            end++;
+    
+    } else {
+
+        start = 0;
+        end = total - 1;
+    }
 
     date = '';
     var content = '';
@@ -161,7 +180,7 @@ function countLoads() {
     loaded++;
     if (loaded == end - start + 1) {
         loaded = 0;
-        var e = document.documentElement;
+        var e = document.scrollingElement;
         document.getElementById('bdiv').innerHTML = tmp.innerHTML.replace(/ onload="countLoads\(\)"/g, '');
         if (scroll > 0) {
             e.scrollTop = e.scrollHeight - scroll;
@@ -183,7 +202,7 @@ function countLoads() {
 
 
 function scrolled() {
-    if (album === null) {
+    if (album === null && share == false) {
         var e = document.documentElement;
         if (e.scrollTop == 0) {
             scroll = e.scrollHeight;
@@ -246,12 +265,17 @@ function imgClk(id) {
             document.getElementById('img_'+id).className = 'selected';
         }
     } else {
-        var slideWindow = window.open('slideshow.html', 'thjmedia_slideshow', 'width=1024,height=768');
         selected = id;
-        slideWindow.moveTo(0,0);
-        slideWindow.resizeTo(screen.width, screen.height);
-        slideWindow.focus();
+        document.getElementById('slideshow').src = 'slideshow.html';
+        document.getElementById('slideshow').style.display = 'block';
+        document.body.style.overflow = 'hidden';
     }
+}
+
+
+function closeSlideshow() {
+    document.getElementById('slideshow').style.display = 'none';
+    document.body.style.overflow = 'visible';
 }
 
 
@@ -264,13 +288,14 @@ function select(state) {
         document.getElementById('select').style.display = 'none';
         selecting = true;
 
-        if (album === null) {
+        if (share == true) {
+            document.getElementById('all').style.display = 'inline-block';
+        } else if (album === null) {
             document.getElementById('name').style.display = 'inline-block';
             document.getElementById('add').style.display = 'inline-block';
         } else {
             document.getElementById('remove').style.display = 'inline-block';
             document.getElementById('all').style.display = 'inline-block';
-            document.getElementById('download').style.display = 'inline-block';
         }
 
     } else {
@@ -292,10 +317,17 @@ function select(state) {
 
 
 function selectAll() {
-    if (selecting && album !== null) {
-        for (var id in albums[album]) {
-            selection[id] = albums[album][id];
-            document.getElementById('img_'+id).className = 'selected';
+    if (selecting) {
+        if (album == null) {
+            for (var id in library) {
+                selection[id] = library[id];
+                document.getElementById('img_'+id).className = 'selected';
+            }
+        } else {
+            for (var id in albums[album]) {
+                selection[id] = albums[album][id];
+                document.getElementById('img_'+id).className = 'selected';
+            }
         }
     }
 }
@@ -323,6 +355,10 @@ function add() {
         }
     }
 
+    albums[a].sort(function(a, b) {
+        return a.date.localeCompare(b.date);
+    })
+
     saveAlbum(a);
 }
 
@@ -342,12 +378,7 @@ function saveAlbum(a) {
     var name = encodeURIComponent(a);
     var str = encodeURIComponent(JSON.stringify(albums[a]));
     var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            getAlbums();
-        }
-    };
+    
     xhttp.open('POST', 'save.php', true);
     xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhttp.send('name=albums/'+name+'&str='+str);
@@ -356,6 +387,33 @@ function saveAlbum(a) {
 
 
 function download() {
-    var str = encodeURIComponent(JSON.stringify(selection));
-    window.location.href = 'download.php?str='+str;
+    var str = JSON.stringify(selection);
+
+    var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", "download.php");
+    form.setAttribute("target", "_blank");
+
+    var hiddenField = document.createElement("input"); 
+    hiddenField.setAttribute("type", "hidden");
+    hiddenField.setAttribute("name", "str");
+    hiddenField.setAttribute("value", str);
+
+    form.appendChild(hiddenField);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
+function togglemenu() {
+    if (document.getElementById('menu').style.display == 'none') {
+        document.getElementById('menu').style.display = 'block';
+    } else {
+        document.getElementById('menu').style.display = 'none';
+    }
+}
+
+
+function settouch() {
+    touch = document.getElementById('touch').checked;
 }

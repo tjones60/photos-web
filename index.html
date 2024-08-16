@@ -2,20 +2,18 @@
 <html lang="en">
 
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="application-name" content="Photos" />
+        <meta name="apple-mobile-web-app-title" content="Photos" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <title>Photos</title>
         <link rel="stylesheet" href="/style.css">
         <style>
 
-            #selector {
-                position: fixed;
-                top: 0;
-                right: 0;
-                z-index: 999;
-                padding: 10px;
-            }
-
-            #selector select {
-                font-size: 14px;
+            #menu select, button, input {
+                font-size: 20px;
                 font-family: Verdana;
             }
 
@@ -46,8 +44,19 @@
 
             .selected {
                 outline: 4px solid #aaa;
-                outline-radius: 4px;
                 opacity: 0.5;
+            }
+
+            #slideshow {
+                position: fixed;
+                left: 0;
+                top: 0;
+                margin: 0;
+                padding: 0;
+                border: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: 1000;
             }
 
         </style>
@@ -55,15 +64,32 @@
     </head>
 
     <body onscroll="scrolled()">
-
+        
         <img id="mbtn" src="/i/menu.png" onclick="togglemenu()">
-
+        
         <div id="menu" style="display:none">
-            <a href="/"><div><img src="/i/home.png"></div><p>THJ Media Server</p></a><br>
-            <a href="/jones/music"><div><img src="/i/musicnote.png"></div><p>Jones Music</p></a><br>
-            <a href="/jones/photos"><div><img src="/i/lakepic.png"></div><p><b>Jones Photos</b></p></a><br>
-        </div>
 
+            <select id="y" style="width:100px;display:none" onchange="sely()"><option>Y</option></select>
+            <select id="m" style="width:75px;display:none" onchange="selm()"><option>M</option></select>
+            <select id="d" style="width:75px;display:none" onchange="seld()"><option>D</option></select><br><br>
+
+            <select id="album" style="width:250px;display:none" onchange="selAlbum()"><option>Album</option></select>
+            <button id="close" style="display:none" onclick="closeAlbum()">Close</button><br><br>
+
+            <button id="cancel" style="display:none" onclick="select(false)">Cancel</button>
+            <button id="select" onclick="select(true)">Select</button>
+            <button id="all" style="display:none" onclick="selectAll()">All</button>
+            <button id="remove" style="display:none" onclick="remove()">Remove</button>
+            <button id="download" style="display:none" onclick="download()">Download</button><br><br>
+
+            <input type="text" id="name" style="width:250px;display:none" placeholder="Album Name">
+            <button id="add" style="display:none" onclick="add()">Add</button><br><br>
+            
+            <input type="checkbox" id="touch" name="touch" value="touch" onclick="settouch()"/>
+            <label for="touch">Touch</label>
+            
+        </div> 
+        
         <script>
             function togglemenu() {
                 if (document.getElementById('menu').style.display == 'none') {
@@ -73,26 +99,13 @@
                 }
             }
         </script>
-
+       
         <div id="hdiv"><b>Photos</b></div>
-
-        <span id="selector" style="float:right">
-            <button id="cancel" style="display:none" onclick="select(false)">Cancel</button>
-            <input type="text" id="name" style="width:100px;display:none" placeholder="Album Name">
-            <button id="select" onclick="select(true)">Select</button>
-            <button id="add" style="display:none" onclick="add()">Add</button>
-            <button id="download" style="display:none" onclick="download()">Download</button>
-            <button id="all" style="display:none" onclick="selectAll()">All</button>
-            <button id="remove" style="display:none" onclick="remove()">Remove</button>
-            <button id="close" style="display:none" onclick="closeAlbum()">Close</button>
-            <select id="y" style="width:75px" onchange="sely()"><option>Y</option></select>
-            <select id="m" style="width:50px" onchange="selm()"><option>M</option></select>
-            <select id="d" style="width:50px" onchange="seld()"><option>D</option></select>
-            <select id="album" style="width:100px" onchange="selAlbum()"><option>Album</option></select>
-        </span>
 
         <div id="loading">Loading...</div>
         <div id="bdiv" style="visibility:hidden"></div>
+
+        <iframe src="slideshow.html" id="slideshow" style="display:none"></iframe>
 
         <script>
             initBrowser();

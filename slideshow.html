@@ -2,6 +2,7 @@
 <html lang="en">
 
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Slide Show</title>
         <style>
 
@@ -24,24 +25,40 @@
                 max-width: 100%;
             }
 
-            #info {
+            #movie {
+                padding: 0;
+                display: none;
+                vertical-align: middle;
+                margin: auto;
+                max-height: 100vh;
+                max-width: 100%;
+            }
+
+            .banner {
                 position: absolute;
                 width: 100%;
-                height: auto;
+                height: 70px;
                 margin: 0;
-                padding: 4px 0 4px 0;
                 top: 0;
                 font-family: Verdana;
                 font-size: 12px;
                 line-height: normal;
                 background-color: white;
                 opacity: 0;
+                z-index: 999;
             }
 
-            button {
+            #info {
+                position: fixed;
+                top: 35px;
+                width: 100%;
+                margin: 0;
+            }
+
+            .navbtn {
                 position: absolute;
                 height: 100%;
-                width: 80px;
+                width: 100px;
                 font-family: Verdana;
                 font-size: 50px;
                 border: none;
@@ -49,8 +66,8 @@
                 opacity: 0;
                 cursor: pointer;
             }
-
-            #info:hover, button:hover {
+            
+            .hoverable:hover {
                 opacity: 0.8;
             }
 
@@ -60,14 +77,21 @@
 
     <body>
 
-        <p id="info"></p>
+        <div id="banner" class="banner">
+            <div style="position:fixed;left:10px;top:10px;"><button id="backbtn" onclick="movie.pause();parent.closeSlideshow()"><b>X</b></button></div>
+            <div style="position:absolute;right:10px;top:10px;"><input type="text" value="5" style="width:20px" id="interval">
+            <button id="showbtn" onclick="playshow()">&#9658</button></div>
+            <p id="info"></p>
+        </div>
 
-        <button style="top:0;left:0" onclick="previous()">&#8249</button>
-        <button style="top:0;right:0" onclick="next()">&#8250</button>
+        <button id="prevbtn" class="navbtn" style="top:0;left:0" onclick="previous()">&#8249</button>
+        <button id="nextbtn" class="navbtn" style="top:0;right:0" onclick="next()">&#8250</button>
 
         <img id="image">
         <img id="preload1" style="display:none">
         <img id="preload2" style="display:none">
+
+        <video id="movie" controls></video>
 
         <script>
             initSlideshow();

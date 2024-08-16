@@ -13,14 +13,29 @@ if (is_file($list)) {
 
     foreach ($images as $img) {
 
-        echo $img."...";
+		$thumbname = $path.$img.".JPG";
 
-        if (!is_file($path.$img)) {
+		echo "$img->$thumbname...";
+
+        if (!is_file($thumbname)) {
 
             echo "Generating...";
 
         	//load image
-        	$source_image = imagecreatefromjpeg($img);
+			$ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+			if ($ext == 'jpg') {
+        		$source_image = imagecreatefromjpeg($img);
+			} elseif ($ext == 'png') {
+				$source_image = imagecreatefrompng($img);
+		    } elseif ($ext == 'mp4' || $ext == 'mov') {
+				shell_exec("mkdir -p '".dirname($thumbname)."'");
+				shell_exec("ffmpeg -loglevel warning -hide_banner -ss 00:00:00.00 -i '$img' -vf 'scale=160:160:force_original_aspect_ratio=decrease,pad=160:160:(ow-iw)/2:(oh-ih)/2:white' -vframes 1 '$thumbname'");
+				echo "Done!\n";
+				continue; 
+			} else {
+				echo "Unsupported file type";
+				continue;
+			}
 
         	//get the width and height of original image
         	$width = imagesx($source_image);
@@ -51,7 +66,7 @@ if (is_file($list)) {
         	//save image
         	if (!is_dir(dirname($path.$img)))
         		mkdir(dirname($path.$img), 0777, true);
-        	imagejpeg($thumb, $path.$img);
+        	imagejpeg($thumb, $thumbname);
 
         	//free memory
         	imagedestroy($thumb);
